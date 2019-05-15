@@ -2,10 +2,15 @@ import React, { Component } from 'react';
 import { BrowserRouter as Link } from "react-router-dom";
 
 const menuList = [
-  {route: 'index', text: 'Dashboard', icon: 'fa fa-dashboard'},
-  {route: 'categories', text: 'Danh mục', icon: 'fa fa-list-alt'},
-  {route: 'articles', text: 'Bài viết', icon: 'fa fa-newspaper-o'},
-  {route: 'banners', text: 'Banner', icon: 'fa fa-image'}];
+  {route: '/categories', text: 'Danh mục', icon: 'nav-icon fa fa-list-alt'},
+  {route: '/articles', text: 'Bài viết', icon: 'nav-icon fa fa-newspaper-o'},
+  {route: '/banners', text: 'Banner', icon: 'nav-icon fa fa-image'},
+  {route: '/products', text: 'Sản phẩm', icon: 'nav-icon fa fa-image'},
+  {route: '/orders', text: 'Giao dịch', icon: 'nav-icon fa fa-image'},
+  {route: '/chart', text: 'Thống kê', icon: 'nav-icon fa fa-image'},
+  {route: '/notifications', text: 'Thông báo', icon: 'nav-icon fa fa-image'},
+  {route: '/report', text: 'Đơn từ', icon: 'nav-icon fa fa-image'},
+  {route: '/users', text: 'Người dùng', icon: 'nav-icon fa fa-user'},];
 
 class Sidebar extends Component {
 
@@ -21,10 +26,10 @@ class Sidebar extends Component {
     return (
       <aside className="main-sidebar sidebar-dark-primary elevation-4">
           {/* Brand Logo */}
-          <a href="index3.html" className="brand-link">
+          <Link to="/"><a className="brand-link">
             <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" className="brand-image img-circle elevation-3" style={{opacity: '.8'}} />
-            <span className="brand-text font-weight-light">AdminLTE 3</span>
-          </a>
+            <span className="brand-text font-weight-light">Admin Do2geder</span>
+          </a></Link>
           {/* Sidebar */}
           <div className="sidebar">
             {/* Sidebar user panel (optional) */}
@@ -39,51 +44,16 @@ class Sidebar extends Component {
             {/* Sidebar Menu */}
             <nav className="mt-2">
               <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                <li className="nav-item">
-                  <a href="pages/widgets.html" className="nav-link">
-                    <i className="nav-icon fa fa-th" />
-                    <p>
-                      Widgets
-                      <span className="right badge badge-danger">New</span>
-                    </p>
-                  </a>
-                </li>
                 <li className="nav-header">EXAMPLES</li>
-                <li className="nav-item">
-                  <a href="pages/calendar.html" className="nav-link">
-                    <i className="nav-icon fa fa-calendar" />
+                {menuList.map((item,index) => <li key={index} className="nav-item">
+                  <Link to={item.route}><a className="nav-link">
+                    <i className={item.icon} />
                     <p>
-                      Calendar
-                      <span className="badge badge-info right">2</span>
+                      {item.text}
+                      {/* <span className="badge badge-info right">2</span> */}
                     </p>
-                  </a>
-                </li>
-                 <li className="nav-header">MISCELLANEOUS</li>
-                <li className="nav-item">
-                  <a href="https://adminlte.io/docs" className="nav-link">
-                    <i className="nav-icon fa fa-file" />
-                    <p>Documentation</p>
-                  </a>
-                </li>
-                <li className="nav-header">LABELS</li>
-                <li className="nav-item">
-                  <a href="#" className="nav-link">
-                    <i className="nav-icon fa fa-circle-o text-danger" />
-                    <p className="text">Important</p>
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a href="#" className="nav-link">
-                    <i className="nav-icon fa fa-circle-o text-warning" />
-                    <p>Warning</p>
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a href="#" className="nav-link">
-                    <i className="nav-icon fa fa-circle-o text-info" />
-                    <p>Informational</p>
-                  </a>
-                </li>
+                  </a></Link>
+                </li>)}
               </ul>
             </nav>
             {/* /.sidebar-menu */}
