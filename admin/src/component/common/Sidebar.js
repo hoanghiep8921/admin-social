@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const menuList = [
   {route: '/categories', text: 'Danh mục', icon: 'nav-icon fa fa-list-alt'},
   {route: '/articles', text: 'Bài viết', icon: 'nav-icon fa fa-newspaper-o'},
   {route: '/banners', text: 'Banner', icon: 'nav-icon fa fa-image'},
-  {route: '/products', text: 'Sản phẩm', icon: 'nav-icon fa fa-image'},
-  {route: '/orders', text: 'Giao dịch', icon: 'nav-icon fa fa-image'},
-  {route: '/chart', text: 'Thống kê', icon: 'nav-icon fa fa-image'},
-  {route: '/notifications', text: 'Thông báo', icon: 'nav-icon fa fa-image'},
-  {route: '/report', text: 'Đơn từ', icon: 'nav-icon fa fa-image'},
-  {route: '/users', text: 'Người dùng', icon: 'nav-icon fa fa-user'},];
+  {route: '/products', text: 'Sản phẩm', icon: 'nav-icon fa fa-copy'},
+  {route: '/orders', text: 'Giao dịch', icon: 'nav-icon fa fa-reorder'},
+  {route: '/chart', text: 'Thống kê', icon: 'nav-icon fa fa-bar-chart'},
+  {route: '/notifications', text: 'Thông báo', icon: 'nav-icon fa fa-bell'},
+  {route: '/report', text: 'Đơn từ', icon: 'nav-icon fa fa-file-word-o'},
+  {route: '/users', text: 'Người dùng', icon: 'nav-icon fa fa-users'},];
 
 class Sidebar extends Component {
 
@@ -25,11 +25,6 @@ class Sidebar extends Component {
 
     return (
       <aside className="main-sidebar sidebar-dark-primary elevation-4">
-          {/* Brand Logo */}
-          <Link to="/"><a className="brand-link">
-            <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" className="brand-image img-circle elevation-3" style={{opacity: '.8'}} />
-            <span className="brand-text font-weight-light">Admin Do2geder</span>
-          </a></Link>
           {/* Sidebar */}
           <div className="sidebar">
             {/* Sidebar user panel (optional) */}
@@ -46,7 +41,7 @@ class Sidebar extends Component {
               <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 <li className="nav-header">EXAMPLES</li>
                 {menuList.map((item,index) => <li key={index} className="nav-item">
-                  <Link to={item.route}><a className="nav-link">
+                  <Link to={item.route}><a href="" className="nav-link">
                     <i className={item.icon} />
                     <p>
                       {item.text}

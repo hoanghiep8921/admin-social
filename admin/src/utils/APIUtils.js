@@ -1,6 +1,6 @@
-const API_BASE_URL = 'http://localhost:8080';
+export const API_BASE_URL = 'http://localhost:8088';
 
-const request = (options) => {
+export const request = (options) => {
   const headers = new Headers({
     'Content-Type': 'application/json',
   })
