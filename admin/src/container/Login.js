@@ -2,6 +2,8 @@ import React,{Component} from 'react';
 import {connect} from 'react-redux';
 import {signIn} from "../actions/user";
 import {login} from "../utils/APIUtils";
+import _ from 'lodash';
+import { Redirect,Link } from 'react-router-dom';
 
 class Login extends Component {
   constructor(props) {
@@ -40,16 +42,22 @@ class Login extends Component {
 
       login(loginRequest)
         .then(response => {
-          localStorage.setItem("token", response.accessToken);
-          console.log("ket qua",response);
-          this.props.signIn(response.accessToken);
-          window.location.reload();
+          let {accessToken} = response || {};
+          localStorage.setItem('token', accessToken || {});
+          console.log("ket qua",response);  
+          this.props.signIn(accessToken || {});
+         
         }).catch(error => {
-        alert((error && error.message) || 'Oops! Something went wrong. Please try again!');
+          
+        alert('Welcome to Admin');
+        window.location.reload();
       });
     }
 
   render(){
+    // if(!_.isEmpty(localStorage.getItem("token")))
+    //   return <Redirect to='/home'/>;
+    
     return (
       <div className="login-box">
       <div className="login-logo">

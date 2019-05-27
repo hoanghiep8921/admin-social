@@ -1,12 +1,79 @@
 import React, { Component } from 'react';
 
+import {Bar,Line,Doughnut ,Chart} from 'react-chartjs-2';
+import {request,API_BASE_URL} from '../../utils/APIUtils';
+import _ from 'lodash';
+import ReactHTMLTableToExcel from 'react-html-table-to-excel';
 class Report extends Component {
-    constructor () {
-        super()
-        this.state={
-            data:[]
-        }
+  constructor () {
+    super()
+    this.state={
+      bestSaleNow:{},
+      bestSale:{},
+      dataDougnutNow: {
+        datasets: [],
+        labels: [
+          'Peding',
+          'Accept',
+          'Deliver',
+          'Done'
+        ]
+      },
+      dataDougnut: {
+        datasets: [],
+        labels: [
+          'Peding',
+          'Accept',
+          'Deliver',
+          'Done'
+        ]
+      },
+      dataYearNow:[],
+      dataYear:[],
+      orderByYear : {
+        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July','August','September','October','November','December'],
+        datasets: []
       }
+    }
+  }
+
+  componentDidMount(){
+    let now = new Date();
+    this._getReportOrder(now.getFullYear()-1,'rgba(255,0,0,1)');
+    this._getReportOrder(now.getFullYear(),'rgba(75,192,192,1)');
+    this._getStatusOrder(2018);
+    this._getStatusOrderNow(2019);
+    this._getBest(2018);
+    this._getBest(2019);
+  }
+  _getStatusOrderNow = (year) => {
+    request({
+      url:API_BASE_URL +"/order/countStatus?year="+year,
+      method:'GET'
+    }).then(response => {
+        if(response.success){
+          let {dataDougnutNow} =this.state;
+          let dataset = {
+            data: [],
+            backgroundColor: [
+              '#FF6384',
+              '#36A2EB',
+              '#FFCE56'
+              ],
+              hoverBackgroundColor: [
+              '#FF6384',
+              '#36A2EB',
+              '#FFCE56'
+              ]
+          }
+          dataset.data= response.data;
+          dataDougnutNow.datasets.push(dataset);
+          this.setState({
+            dataDougnutNow,
+          })
+        }
+    })
+  }
   
       render(){
           return (

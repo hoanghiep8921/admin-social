@@ -14,13 +14,6 @@ const menuList = [
 
 class Sidebar extends Component {
 
-//   _signOut = () => {
-//     UserManager.getInstance().signOut();
-//     const j = window.jQuery.noConflict();
-//     j('#signOutModal').modal('hide');
-//     Router.pushRoute('/login');
-//   };
-
   render () {
 
     return (
@@ -33,13 +26,13 @@ class Sidebar extends Component {
                 <img src="dist/img/user2-160x160.jpg" className="img-circle elevation-2" alt="User Image" />
               </div>
               <div className="info">
-                <a href="#" className="d-block">Alexander Pierce</a>
+                <a href="/" className="d-block">Admin</a>
               </div>
             </div>
             {/* Sidebar Menu */}
             <nav className="mt-2">
               <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                <li className="nav-header">EXAMPLES</li>
+                <li className="nav-header">Manager</li>
                 {menuList.map((item,index) => <li key={index} className="nav-item">
                   <Link to={item.route}><a href="" className="nav-link">
                     <i className={item.icon} />

@@ -5,6 +5,8 @@ import {
 } from 'react-router-dom';
 import Header from '../common/Header';
 
+import {connect} from 'react-redux';
+
 import {BrowserRouter as Router} from 'react-router-dom';
 import Footer from '../common/Footer';
 import Home from '../home/Home';
@@ -15,7 +17,7 @@ import Order from '../order/Order';
 import Report from '../report/Report';
 import Notification from '../notification/Notification';
 import Product from '../product/Product';
-import Chart from '../chart/Chart';
+import ChartReport from '../chart/ChartReport';
 
 
 import Sidebar from '../common/Sidebar';
@@ -29,17 +31,26 @@ class App extends Component {
   constructor () {
     super()
     this.state={
-      token: cookie.load('token'),
+      //token: cookie.load('token'),
     }
   }
+
+  componentWillReceiveProps(nextProps){
+    console.log('next props',nextProps.user);
+    if(nextProps.user != this.state.user){
+      this.setState({
+        user:nextProps.user
+      })
+    }
+}
   render() {
     
     const title='Home';
-    const {token} = this.state;
+    const {user} = this.state;
     return (
       <Router>
       <div>
-        {!_.isEmpty(token) ? <Login /> :
+        {_.isEmpty(localStorage.getItem("token")) ? <Login /> :
             <div className="wrapper">  
               <Header/>
               <Sidebar/> 
@@ -54,8 +65,8 @@ class App extends Component {
                   <Route path="/products" component={Product}></Route>
                   <Route path="/orders" component={Order}></Route>
                   <Route path="/notifications" component={Notification}></Route>
-                  <Route path="/user" component={User}></Route>
-                  <Route path="/chart" component={Chart}></Route>
+                  <Route path="/users" component={User}></Route>
+                  <Route path="/chart" component={ChartReport}></Route>
                   <Route component={NotFound}></Route>
               </Switch>
               </div>
@@ -68,4 +79,13 @@ class App extends Component {
   }
 }
 
-export default App;
+const mapStateToProps = (state) => {
+  return {
+    user:state.user
+  };
+};
+const mapDispatchToProps = (dispatch) => {
+  return {
+  }
+}
+export default connect(mapStateToProps,mapDispatchToProps)(App);

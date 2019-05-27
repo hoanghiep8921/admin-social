@@ -1,12 +1,38 @@
 import React, { Component } from 'react';
 import Swal from 'sweetalert2';
 import {request,API_BASE_URL} from '../../utils/APIUtils';
+import _ from 'lodash';
+import moment from 'moment';
 class Category extends Component {
     constructor () {
       super()
       this.state={
-          data:[]
+        listData:[],
+        data:{
+          image:"",
+          name:"",
+          createdAt:"",
+          creator:"",
+          id:""
+        }
       }
+    }
+
+    componentDidMount(){
+        this._getData();
+    }
+
+    _getData = () => {
+      request({
+        url:API_BASE_URL +"/category/getAll",
+        method:'GET',
+      }).then(response => {
+          if(response.success){
+            this.setState({
+                listData:response.data,
+            })
+          }
+      })
     }
 
     _submit = () => {
@@ -17,13 +43,129 @@ class Category extends Component {
         body:JSON.stringify(data)
       }).then(response => {
           if(response.success){
+            this._getData();
             Swal.fire('Success', 'You have created new category successfully', 'success');
           }else{
             Swal.fire('Oops...', 'Something went wrong!', 'error');
           }
       })
     }
+
+    handleUploadImages = (event) => {
+      let data = new FormData();
+      data.append('file', event.target.files[0]);
+      console.log('file',event.target.files);
+      fetch(`${API_BASE_URL}/upload-image`, {
+          method: 'POST',
+          body: data
+        })
+        .then(res => res.json())
+        .then(image => {
+
+            let {data} = this.state;
+            this.setState({
+                data:{
+                    ...data,
+                    image : image.data
+                }
+            });
+      })
+  }
+  handleInputChange = (event) => {
+    const target = event.target;
+    const inputName = target.name;
+    const inputValue = target.value;
+    let {data} = this.state;
+    this.setState({
+        data:{
+            ...data,
+            [inputName] : inputValue
+        }
+    });
+  }
+
+  _openEdit = (id) => {
+        request({
+          url:API_BASE_URL +"/category/get/"+id,
+          method:'GET',
+        }).then(response => {
+            if(response.success){
+              let {data} = this.state;
+              data.image = response.data.image;
+              data.name = response.data.name ;
+              data.createdAt =response.data.createdAt ;
+              data.creator =response.data.creator ;
+              data.id = response.data.id;
+              this.setState({
+                data,
+              })
+            
+          const j = window.jQuery.noConflict();
+          j('#myModalEdit').modal('show');
+            }
+        })
+  }
+
+  _update = () => {
+    let {data} = this.state;
+    console.log("update ",data);
+    request({
+      url:API_BASE_URL +"/category/update/"+this.state.data.id,
+      method:'PUT',
+      body:JSON.stringify(data)
+    }).then(response => {
+        if(response.success){
+          let {data} = this.state;
+              data.image = response.data.image;
+              data.name = response.data.name ;
+              data.createdAt =response.data.createdAt ;
+              data.creator =response.data.creator ;
+              data.id = response.data.id;
+              this.setState({
+                data,
+              })
+              this._getData();
+          Swal.fire(
+            'Updated!',
+            'Your category has been updated.',
+            'success'
+          )
+        }
+    })
+  }
+
+  _delete = (id) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.value) {
+        request({
+          url:API_BASE_URL +"/category/delete/"+id,
+          method:'DELETE',
+        }).then(response => {
+            if(response.success){
+              this._getData();
+              Swal.fire(
+                'Deleted!',
+                'Your file has been deleted.',
+                'success'
+              )
+            }
+        })
+        
+      }
+    })
+  }
+
     render(){
+      let {data,listData} = this.state;
+      let {image,creator,createdAt,name} = data;
         return (
             <div className="container-fluid">
               <h2>Category</h2>
@@ -41,15 +183,15 @@ class Category extends Component {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <th scope="row">1</th>
-                      <td>Máy giặt</td>
-                      <td><img src=''  height={50} width={50}/></td>
-                      <td>22-12-2012</td>
-                      <td>Jvever.Return</td>
-                      <td><button className="btn btn-success"><i className='fa fa-edit'></i></button><span>  </span>
-                      <button className="btn btn-danger"><i className='fa fa-times'></i> </button></td>
-                    </tr>
+                   {!_.isEmpty(listData) && listData.map((item,index) =>  <tr>
+                      <th scope="row">{item.id}</th>
+                      <td>{item.name}</td>
+                      <td><img src={item.image}  height={50} width={50}/></td>
+                      <td>{moment(item.createdAt).format("DD/MM/YYYY hh:mm")}</td>
+                      <td>{item.creator}</td>
+                      <td><button className="btn btn-success" onClick={() => this._openEdit(item.id)}><i className='fa fa-edit'></i></button><span> </span>
+                      <button className="btn btn-danger" onClick={() => this._delete(item.id)}><i className='fa fa-times'></i> </button></td>
+                    </tr>)}
                   </tbody>
                   </table>
 
@@ -58,30 +200,80 @@ class Category extends Component {
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h4 class="modal-title">Modal Heading</h4>
+                  <h4 class="modal-title">Create Cateogory</h4>
                   <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 
                 <div class="modal-body">
                 <div class="form-group">
-    <label for="email">Email address:</label>
-    <input type="email" class="form-control" id="email" />
-  </div>
-  <div class="form-group">
-    <label for="pwd">Password:</label>
-    <input type="password" class="form-control" id="pwd"/>
-  </div>
-  <div class="form-group form-check">
-    <label class="form-check-label">
-      <input class="form-check-input" type="checkbox" /> Remember me
-    </label>
-  </div>
+                  <label for="email">Name :</label>
+                  <input type="text" class="form-control" name="name" value={name} onChange={this.handleInputChange}/>
+                </div>
+                <div class="form-group">
+                <label for="group1">Chọn ảnh đại diện cho sản phẩm</label><br></br>
+                                          {!_.isEmpty(image) && <img className='img-product-primary' src={image} width={200} height={200}/> }
+                                          <br/>
+                  <div className="input-group" id="group1">
+                        <div className="input-group-prepend">
+                        <span className="input-group-text" id="addon1"><i className="far fa-file-image"></i></span>
+                        </div>
+                        <div className="custom-file">
+                        <input type="file" className="custom-file-input" id="file1" accept="image/*" 
+                         aria-describedby="addon1" onChange={this.handleUploadImages}/>
+                        <label className="custom-file-label" for="file1">Chọn ảnh</label>
+                        </div>
+                    </div>
+                  </div>
             <button class="btn btn-primary" onClick={this._submit}>Submit</button>
                 </div>
                 </div>
               </div>
               </div>
               
+
+              <div class="modal fade" id="myModalEdit" >
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title">Detail Category</h4>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                <div class="form-group">
+                  <label for="email">Name :</label>
+                  <input type="text" class="form-control" name="name" onChange={this.handleInputChange} value={name} />
+                </div>
+                <div class="form-group">
+                  <label for="email">Creator :</label>
+                  <input type="text" class="form-control" name="creator" value={creator} onChange={this.handleInputChange}/>
+                </div>
+
+                <div class="form-group">
+                <label for="group1">Chọn ảnh đại diện cho sản phẩm</label><br></br>
+                    {!_.isEmpty(image) && <img className='img-product-primary' src={image} width={200} height={200}/> }
+                  <br/>
+                  <div className="input-group" id="group1">
+                        <div className="input-group-prepend">
+                        <span className="input-group-text" id="addon1"><i className="far fa-file-image"></i></span>
+                        </div>
+                        <div className="custom-file">
+                        <input type="file" className="custom-file-input" id="file1" accept="image/*" 
+                         aria-describedby="addon1" onChange={this.handleUploadImages}/>
+                        <label className="custom-file-label" for="file1">Chọn ảnh</label>
+                        </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                  <label for="email">Creatd At :</label>
+                  <input type="text" class="form-control" name="createdAt" disabled value={moment(createdAt).format("DD/MM/YYYY hh:mm")} onChange={this.handleInputChange}/>
+                </div>
+            <button class="btn btn-primary" onClick={this._update}>Submit</button>
+                </div>
+                </div>
+              </div>
+              </div>
+            
             </div>
         )
     }
