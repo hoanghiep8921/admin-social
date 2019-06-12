@@ -1,8 +1,84 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
+import SockJsClient from 'react-stomp';
+import {request,API_BASE_URL} from '../../utils/APIUtils';
+import _ from 'lodash';
+import moment from 'moment';
 
 class Header extends Component {
+  constructor(props){
+    super(props);
+    const {isLogin,user} = this.props;
+    this.state = {
+      countNotifi:'',
+      listNotifi:[]
+    }
+  }
+
+  componentDidMount(){
+    this._getData();
+    this._getCount();
+  }
+ 
+  _getCount = () => {
+    request({
+      url: API_BASE_URL + "/notifi/count/1",
+      method:'GET',
+    }).then(response => {
+      if(response.success){
+        this.setState({
+          countNotifi:response.data,
+        })
+      }
+    })
+  }
+
+  _readNoti = (id,url) => {
+    let {countNotifi} = this.state;
+    request({
+      url: API_BASE_URL + "/notifi/read/"+ id,
+      method: 'GET'
+  }).then(response => {
+      if(response.success){
+        if(countNotifi>0){
+          this.setState({
+            countNotifi:--countNotifi,
+          })
+        }
+       
+      }
+      
+    this._getData();
+    window.open(url, '_blank');
+  }).catch(error => {
+      console.log(error);
+  })
+  }
+
+  _getData = () => {
+    request({
+      url: API_BASE_URL + "/notifi/getAll/1?page=0&limit=30",
+      method:'GET',
+    }).then(response => {
+      console.log("response",response);
+      if(response.success){
+        this.setState({
+          listNotifi:response.data.reverse(),
+        })
+      }
+    })
+  }
+
+  _onNotification = (notification) => {
+    let {listNotifi,countNotifi} = this.state;
+    listNotifi.unshift(notification);
+    this.setState({
+      listNotifi,
+      countNotifi:++countNotifi
+    });
+  }
   render () {
+    const {countNotifi,listNotifi} = this.state;
     return (
       <nav className="main-header navbar navbar-expand bg-white navbar-light border-bottom">
       {/* Left navbar links */}
@@ -23,27 +99,15 @@ class Header extends Component {
         <li className="nav-item dropdown">
           <a className="nav-link" data-toggle="dropdown" href="#">
             <i className="fa fa-bell-o" />
-            <span className="badge badge-warning navbar-badge">15</span>
+            <span className="badge badge-warning navbar-badge">{countNotifi>0 && countNotifi}</span>
           </a>
-          <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-            <span className="dropdown-item dropdown-header">15 Notifications</span>
+          <div className="dropdown-menu dropdown-menu-lg dropdown-menu-right" style={{minWidth:'none',maxWidth:'none'
+}}>
             <div className="dropdown-divider" />
-            <a href="#" className="dropdown-item">
-              <i className="fa fa-envelope mr-2" /> 4 new messages
-              <span className="float-right text-muted text-sm">3 mins</span>
-            </a>
-            <div className="dropdown-divider" />
-            <a href="#" className="dropdown-item">
-              <i className="fa fa-users mr-2" /> 8 friend requests
-              <span className="float-right text-muted text-sm">12 hours</span>
-            </a>
-            <div className="dropdown-divider" />
-            <a href="#" className="dropdown-item">
-              <i className="fa fa-file mr-2" /> 3 new reports
-              <span className="float-right text-muted text-sm">2 days</span>
-            </a>
-            <div className="dropdown-divider" />
-            <a href="#" className="dropdown-item dropdown-footer">See All Notifications</a>
+           {!_.isEmpty(listNotifi) && listNotifi.map((item,index) => <a key={index}  onClick={() => this._readNoti(item.id,item.url)} className="dropdown-item">
+              <i className="fa fa-envelope mr-2" />{item.title}
+              <span className="float-right text-muted text-sm">{moment(item.timestamp).fromNow()}</span>
+           </a>)} 
           </div>
         </li>
         <li className="nav-item">
@@ -53,6 +117,11 @@ class Header extends Component {
           }} className="nav-link"><i className="fa fa-sign-out" /></a>
         </li>
       </ul>
+      <SockJsClient url="http://localhost:8088/newNotification"  topics={["/topic/newNotification/1"]}
+            onMessage={ (notification) => this._onNotification(notification)} ref={ (client) => 1}
+            onConnect={() => console.log('connected to notifi')}
+            onDisconnect={ () => console.log("fuck you")}
+            debug={ false }/>
     </nav>
     );
   }

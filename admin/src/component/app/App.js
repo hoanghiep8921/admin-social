@@ -26,6 +26,9 @@ import './App.css';
 import Login from '../../container/Login';
 import cookie from 'react-cookies';
 import _ from 'lodash';
+import ArticleDetail from '../article/ArticleDetail';
+
+import Article from '../article/Article';
  
 class App extends Component {
   constructor () {
@@ -60,7 +63,8 @@ class App extends Component {
                   <Route exact path="/" component={Home}></Route>
                   <Route path="/categories" component={Category}></Route>
                   <Route path="/banners" component={Banner}></Route>
-                  <Route path="/articles" component={Banner}></Route>
+                  <Route path="/articles" component={Article}></Route>
+                  <Route path="/article/:id" component={ArticleDetail}></Route>
                   <Route path="/report" component={Report}></Route>
                   <Route path="/products" component={Product}></Route>
                   <Route path="/orders" component={Order}></Route>

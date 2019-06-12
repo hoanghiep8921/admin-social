@@ -6,6 +6,8 @@ import {request,API_BASE_URL} from '../../utils/APIUtils';
 import _ from 'lodash';
 import ReactHTMLTableToExcel from 'react-html-table-to-excel';
 
+
+
 var originalDoughnutDraw = Chart.controllers.doughnut.prototype.draw;
 Chart.helpers.extend(Chart.controllers.doughnut.prototype, {
   draw: function() {
@@ -38,6 +40,7 @@ class Home extends Component {
     this.state={
       countOrder:'',
       countProduct:'',
+      countArticle:'',
       countUser:'',
       bestSaleNow:{},
       bestSale:{},
@@ -79,6 +82,7 @@ class Home extends Component {
     this._countOrder();
     this._countProduct();
     this._countUser()
+    this._countArticle();
   }
   _getStatusOrderNow = (year) => {
     request({
@@ -138,6 +142,18 @@ class Home extends Component {
         })
     })
   }
+
+  _countArticle = () => {
+    request({
+      url:API_BASE_URL +"/article/count",
+      method:'GET'
+    }).then(response => {
+      this.setState({
+        countArticle:response.data
+      })
+    })
+  }
+
   _getStatusOrder = (year) => {
     request({
       url:API_BASE_URL +"/order/countStatus?year="+year,
@@ -233,7 +249,7 @@ class Home extends Component {
     })
   }
   render () {
-    const {orderByYear,dataYear,dataYearNow,dataDougnut,dataDougnutNow,bestSale,bestSaleNow,countProduct,countOrder,countUser} = this.state;
+    const {orderByYear,dataYear,dataYearNow,dataDougnut,dataDougnutNow,bestSale,bestSaleNow,countProduct,countOrder,countUser,countArticle} = this.state;
     const date = new Date();
     if(!_.isEmpty(bestSaleNow))
     console.log(bestSaleNow.buyer);
@@ -289,7 +305,7 @@ class Home extends Component {
              {/* small box */}
              <div className="small-box bg-danger">
                <div className="inner">
-                 <h3>650</h3>
+                 <h3>{countArticle}</h3>
                  <p>Arctice</p>
                </div>
                <div className="icon">

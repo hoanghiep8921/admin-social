@@ -124,7 +124,7 @@ _delete = (id) => {
   }).then((result) => {
     if (result.value) {
       request({
-        url:API_BASE_URL +"/banner/delete/"+id,
+        url:API_BASE_URL +"/product/delete/"+id,
         method:'DELETE',
       }).then(response => {
           if(response.success){

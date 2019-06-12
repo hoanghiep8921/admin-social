@@ -38,20 +38,26 @@ class Login extends Component {
         email:email,
         password:password
       }
-      const loginRequest = Object.assign({}, user);
 
-      login(loginRequest)
-        .then(response => {
-          let {accessToken} = response || {};
-          localStorage.setItem('token', accessToken || {});
-          console.log("ket qua",response);  
-          this.props.signIn(accessToken || {});
-         
-        }).catch(error => {
-          
-        alert('Welcome to Admin');
-        window.location.reload();
-      });
+
+      if(email == 'admin@gmail.com' && password == '123456zx'){
+        const loginRequest = Object.assign({}, user);
+
+        login(loginRequest)
+          .then(response => {
+            let {accessToken} = response || {};
+            localStorage.setItem('token', accessToken || {});
+            console.log("ket qua",response);
+            this.props.signIn(accessToken || {});
+
+          }).catch(error => {
+
+          alert('Welcome to Admin');
+          window.location.reload();
+        });
+      }else{
+        alert("Tài khoản không đúng. Vui lòng kiểm tra lại");
+      }
     }
 
   render(){
