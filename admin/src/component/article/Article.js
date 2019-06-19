@@ -10,12 +10,15 @@ class Article extends Component {
     this.state={
       filter:"",
       listData:[],
-      search:''
+      search:'',
+      category:[],
+      categoryId:0
     }
   }
 
   componentDidMount(){
     this._getData();
+    this._getCategory();
   }
 
   _getData = () => {
@@ -29,6 +32,18 @@ class Article extends Component {
           filter:"All"
         })
       }
+    })
+  }
+  _getCategory = () => {
+    request({
+      url:API_BASE_URL +"/category/getAll",
+      method:'GET',
+    }).then(response => {
+        if(response.success){
+          this.setState({
+              category:response.data,
+          })
+        }
     })
   }
 
@@ -78,15 +93,22 @@ class Article extends Component {
     })
   }
 
+  _getByCategory = (id,name) => {
+    this.setState({
+      filter:name,
+      categoryId:id
+    })
+  }
+
   handleInput = (event) => {
     this.setState({
         search:event.target.value,
     })
-}
+  }
 
 _getList = () => {
     request({
-      url: API_BASE_URL + "/article/search?name="+this.createSlug(this.state.search),
+      url: API_BASE_URL + "/article/search?name="+this.createSlug(this.state.search)+"&category="+this.state.categoryId,
       method: 'GET'
     }).then(response => {
       console.log("data",response);
@@ -126,8 +148,29 @@ _updateStatus = (id,status) => {
   
     <div className="table-responsive">
     <div>
-        <input type='text' value={search} onChange={this.handleInput} /><span> </span>
-        <button onClick={this._getList} className='btn btn-primary' >Tìm</button>
+      <div className='row'>
+        <div className='col-md-2'></div>
+        <div className='col-md-4'>
+        <div class="form-group">
+            <input type='text' value={search} onChange={this.handleInput} className='form-control' placeholder='Input name article ...'/>
+          </div>
+        </div>
+          
+        <div className='col-md-4'><div className="dropdown">
+          <button className="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Category : <strong>{filter}</strong>
+          </button>
+          <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a className="dropdown-item" onClick={() => this._getByCategory(0,'All')}>All</a>
+            {!_.isEmpty(this.state.category) && this.state.category.map((item,index) => 
+              <a key={index} className="dropdown-item" onClick={() => this._getByCategory(item.id,item.name)}>{item.name}</a>)}
+          </div>
+        </div>
+        </div>
+        <div className='col-md-2'></div>
+      </div>
+       
+        <center><button onClick={this._getList} className='btn btn-primary' >Tìm</button></center>
       </div>
       <br></br>
       <table className="table table-bordered table-responsive">
@@ -144,6 +187,7 @@ _updateStatus = (id,status) => {
       </tr>
       </thead>
       <tbody>
+        {_.isEmpty(listData) && 'Không tìm thấy dữ liệu'}
       {!_.isEmpty(listData) && listData.map((item,index) =>  <tr>
     <th scope="row" key={index}>{item.id}</th>
 

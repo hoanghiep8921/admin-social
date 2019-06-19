@@ -145,11 +145,10 @@ class ChartReport extends Component {
                 <tbody>
                  {!_.isEmpty(listData) && listData.map((item,index) =>  <tr>
                     <th scope="row" key={index}>{item.id}</th>
-                    
                     <td>{item.product.name}</td>
                     <td>{item.user.name}</td>
-                    <td>{moment(item.createdAt).format("DD/MM/YYYY HH:mm")}</td>
-                    <td>{moment(item.delevierAt).format("DD/MM/YYYY HH:mm")}</td>
+                    <td>{moment(item.createdAt*1000).format("DD/MM/YYYY HH:mm")}</td>
+                    <td>{moment(item.delevierAt*1000).format("DD/MM/YYYY HH:mm")}</td>
                     <td>{item.status}</td>
                     <td>{item.isPrice == 0  ? "Đã thanh toán" : "Chưa thanh toán"}</td>
                     <td>{item.isDone  == 0  ? "Đã giao hàng " : "Chưa giao hàng"}</td>

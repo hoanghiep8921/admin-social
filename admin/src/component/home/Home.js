@@ -311,7 +311,7 @@ class Home extends Component {
                <div className="icon">
                  <i className="ion ion-pie-graph" />
                </div>
-               <a href="#" className="small-box-footer">More info <i className="fa fa-arrow-circle-right" /></a>
+               <a href="/articles" className="small-box-footer">More info <i className="fa fa-arrow-circle-right" /></a>
              </div>
            </div>
            {/* ./col */}

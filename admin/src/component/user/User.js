@@ -9,6 +9,7 @@ class User extends Component {
     super()
     this.state={
       listData:[],
+      search:'',
       data:{
         id:"",
         emailVerified:"",
@@ -35,7 +36,7 @@ class User extends Component {
   }
 
   componentDidMount(){
-      this._getData();
+    this._getData();
   }
 
   _getData = () => {
@@ -234,15 +235,35 @@ _block = () => {
       }
   })
 }
-
+_getDataByName = () => {
+  request({
+    url:API_BASE_URL +"/user/searchUser?category=0&name="+this.state.search,
+    method:'GET',
+  }).then(response => {
+      if(response.success){
+        this.setState({
+            listData:response.data,
+        })
+      }
+  })
+  
+}
+handleInput = (event) => {
+  this.setState({
+      search:event.target.value,
+  })
+}
   render(){
-    let {data,listData,newData} = this.state;
+    let {data,listData,newData,search} = this.state;
     let {phone,description,imageUrl,name,address,email,provider,emailVerified} = data;
       return (
           <div className="container-fluid">
             <h2>User</h2>
             <button className="btn btn-primary btn-lg mb-3 " data-toggle="modal" data-target="#myModal">Add +</button>
-          
+            <hr></hr>
+            <input type='text' value={search} onChange={this.handleInput} style={{width:'200px',borderRadius:'5px',padding:'5px',border:'none'}}  placeholder='Input name product ...'/>
+            <span> </span><button onClick={this._getDataByName} className='btn btn-primary' >Tìm</button><hr></hr>
+
               <table class="table table-bordered">
                 <thead>
                   <tr>

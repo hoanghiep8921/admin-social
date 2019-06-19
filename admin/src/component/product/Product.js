@@ -11,7 +11,8 @@ class Product extends Component {
       filter:"",
       category:[],
       listData:[],
-      data:""
+      data:"",
+      search:''
     }
   }
 
@@ -36,6 +37,37 @@ class Product extends Component {
   _getData = () => {
     request({
       url:API_BASE_URL +"/product/getAll?page=0&limit=20",
+      method:'GET',
+    }).then(response => {
+        if(response.success){
+          this.setState({
+              listData:response.data,
+              filter:"All"
+          })
+        }
+    })
+  }
+  createSlug = query => {
+    query = query.replace(/^\s+|\s+$/g, ''); // trim
+    query = query.toLowerCase();
+  
+    // remove accents, swap ñ for n, etc
+    var from = "àáäâèéëêìíïîòóöôùúüûñç·/_,:;";
+    var to   = "aaaaeeeeiiiioooouuuunc------";
+    for (var i=0, l=from.length ; i<l ; i++) {
+      query = query.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
+    }
+  
+    query = query.replace(/[^a-z0-9 -]/g, '') // remove invalid chars
+        .replace(/\s+/g, '-') // collapse whitespace and replace by -
+        .replace(/-+/g, '-'); // collapse dashes
+  
+    return query;
+  }
+
+  _getDataByName = () => {
+    request({
+      url:API_BASE_URL +"/product/searchByName?slug="+this.createSlug(this.state.search),
       method:'GET',
     }).then(response => {
         if(response.success){
@@ -96,67 +128,72 @@ class Product extends Component {
     })
   }
 
-_openEdit = (id) => {
-      request({
-        url:API_BASE_URL +"/product/"+id,
-        method:'GET',
-      }).then(response => {
-          if(response.success){
-            this.setState({
-              data:response.data
-            })
-          
-        const j = window.jQuery.noConflict();
-        j('#myModalEdit').modal('show');
-          }
-      })
-}
-
-_delete = (id) => {
-  Swal.fire({
-    title: 'Are you sure?',
-    text: "You won't be able to revert this!",
-    type: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
-  }).then((result) => {
-    if (result.value) {
-      request({
-        url:API_BASE_URL +"/product/delete/"+id,
-        method:'DELETE',
-      }).then(response => {
-          if(response.success){
-            this._getData();
-            Swal.fire(
-              'Deleted!',
-              'Your file has been deleted.',
-              'success'
-            )
-          }
-      })
-      
-    }
-  })
-}
-
-_getByStatus = (status) => {
-  request({
-    url:API_BASE_URL +"/product/status/"+status,
-    method:'GET',
-  }).then(response => {
-      if(response.success){
-        this.setState({
-            listData:response.data,
-            filter:status
+  _openEdit = (id) => {
+        request({
+          url:API_BASE_URL +"/product/"+id,
+          method:'GET',
+        }).then(response => {
+            if(response.success){
+              this.setState({
+                data:response.data
+              })
+            
+          const j = window.jQuery.noConflict();
+          j('#myModalEdit').modal('show');
+            }
         })
+  }
+
+  _delete = (id) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.value) {
+        request({
+          url:API_BASE_URL +"/product/delete/"+id,
+          method:'DELETE',
+        }).then(response => {
+            if(response.success){
+              this._getData();
+              Swal.fire(
+                'Deleted!',
+                'Your file has been deleted.',
+                'success'
+              )
+            }
+        })
+        
       }
-  })
-}
+    })
+  }
+
+  _getByStatus = (status) => {
+    request({
+      url:API_BASE_URL +"/product/status/"+status,
+      method:'GET',
+    }).then(response => {
+        if(response.success){
+          this.setState({
+              listData:response.data,
+              filter:status
+          })
+        }
+    })
+  }
+  handleInput = (event) => {
+    this.setState({
+        search:event.target.value,
+    })
+  }
 
   render(){
-    let {data,listData,filter} = this.state;
+    let {data,listData,filter,search} = this.state;
     let {name,description,viewer,status,createdAt,price,images,files,video} = data || {};
       return (
           <div className="container-fluid">
@@ -176,6 +213,8 @@ _getByStatus = (status) => {
       <a key={index} className="dropdown-item" onClick={() => this._getByCategory(item.id,item.name)}>{item.name}</a>)}
   </div>
 </div>
+<input type='text' value={search} onChange={this.handleInput} style={{width:'200px',borderRadius:'5px',padding:'5px',border:'none'}}  placeholder='Input name product ...'/>
+<span> </span><button onClick={this._getDataByName} className='btn btn-primary' >Tìm</button><hr></hr>
  <div className="table-responsive">
               <table className="table table-bordered table-responsive">
                 <thead>

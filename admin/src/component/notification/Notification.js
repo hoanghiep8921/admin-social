@@ -10,6 +10,8 @@ class Notification extends Component {
     super()
     this.state={
       listData:[],
+      listUser:[],
+      filter:0,
       data:{
         id:"",
         title:"",
@@ -34,16 +36,31 @@ class Notification extends Component {
 
   componentDidMount(){
       this._getData();
+      this._getUser();
   }
 
   _getData = () => {
     request({
-      url:API_BASE_URL +"/notifi/getSystem/0",
+      url:API_BASE_URL +"/notifi/getSystem/"+this.state.filter,
+      method:'GET',
+    }).then(response => {
+      console.log("data réult",response);
+        if(response.success){
+          this.setState({
+              listData:response.data.reverse(),
+          })
+        }
+    })
+  }
+
+  _getUser = () => {
+    request({
+      url:API_BASE_URL +"/user/getAll",
       method:'GET',
     }).then(response => {
         if(response.success){
           this.setState({
-              listData:response.data,
+              listUser:response.data,
           })
         }
     })
@@ -52,19 +69,84 @@ class Notification extends Component {
   _submit = () => {
     let {newData} = this.state;
     console.log("submit",newData);
+    if(newData.type == 0){
+      request({
+        url:API_BASE_URL +"/notifi/addNotifiSystem",
+        method:'POST',
+        body:JSON.stringify(newData)
+      }).then(response => {
+        console.log("data",response);
+          if(response.success){
+            this._getData();
+            Swal.fire('Success', 'You have created new notifi successfully', 'success');
+          }else{
+            Swal.fire('Oops...', 'Something went wrong!', 'error');
+          }
+      })
+    }else{
+      request({
+        url:API_BASE_URL +"/notifi/addNotifiSystem",
+        method:'POST',
+        body:JSON.stringify(newData)
+      }).then(response => {
+        console.log("data",response);
+          if(response.success){
+            this._getData();
+            Swal.fire('Success', 'You have created new notifi successfully', 'success');
+          }else{
+            Swal.fire('Oops...', 'Something went wrong!', 'error');
+          }
+      })
+    }
+  }
+  _update = () => {
+    let {data} = this.state;
+    console.log("submit",data);
+    if(data.type == 0){
+      request({
+        url:API_BASE_URL +"/notifi/addNotifiSystem",
+        method:'POST',
+        body:JSON.stringify(data)
+      }).then(response => {
+        console.log("data",response);
+          if(response.success){
+            this._getData();
+            Swal.fire('Success', 'You have created new notifi successfully', 'success');
+          }else{
+            Swal.fire('Oops...', 'Something went wrong!', 'error');
+          }
+      })
+    }else{
+      request({
+        url:API_BASE_URL +"/notifi/addNotifiSystem",
+        method:'POST',
+        body:JSON.stringify(data)
+      }).then(response => {
+        console.log("data",response);
+          if(response.success){
+            this._getData();
+            Swal.fire('Success', 'You have created new notifi successfully', 'success');
+          }else{
+            Swal.fire('Oops...', 'Something went wrong!', 'error');
+          }
+      })
+    }
+  }
+  handleInput = (event) => {
+    this.setState({
+      filter:event.target.value
+    })
     request({
-      url:API_BASE_URL +"/notifi/addNotifi",
-      method:'POST',
-      body:JSON.stringify(newData)
+      url:API_BASE_URL +"/notifi/getSystem/"+event.target.value,
+      method:'GET',
     }).then(response => {
-      console.log("data",response);
         if(response.success){
-          this._getData();
-          Swal.fire('Success', 'You have created new category successfully', 'success');
-        }else{
-          Swal.fire('Oops...', 'Something went wrong!', 'error');
+          this.setState({
+              listData:response.data,
+          })
         }
     })
+    
   }
 handleInputChange = (event) => {
   const target = event.target;
@@ -142,7 +224,7 @@ _delete = (id) => {
     if (result.value) {
       request({
         url:API_BASE_URL +"/notifi/delete/"+id,
-        method:'GET',
+        method:'DELETE',
       }).then(response => {
           if(response.success){
             this._getData();
@@ -159,11 +241,15 @@ _delete = (id) => {
 }
 
   render(){
-    let {data,listData,newData} = this.state;
+    let {data,listData,newData,listUser,filter} = this.state;
     let {phone,description,imageUrl,name,address,email,provider,emailVerified} = data;
       return (
           <div className="container-fluid">
-            <h2>User</h2>
+            <h2>Notification</h2> <select name="filter" className="form-control" onChange={this.handleInput} 
+                value={filter}> 
+                  <option value={0}>System</option>
+                  <option value={1}>User</option>
+                </select>
             <button className="btn btn-primary btn-lg mb-3 " data-toggle="modal" data-target="#myModal">Add +</button>
           
               <table class="table table-bordered">
@@ -179,11 +265,11 @@ _delete = (id) => {
                 </thead>
                 <tbody>
                  {!_.isEmpty(listData) && listData.map((item,index) =>  <tr>
-                    <th scope="row" key={index}>{item.type == 0 ? "System" : "Infomation  "}</th>
+                    <th scope="row" key={index}>{item.type == 0 ? "System" : "User"}</th>
                     <td>{item.title}</td>
                     <td>{item.content}</td>
                     <td><a href={item.url}>{item.url}</a></td>
-                    <td>{item.timestamp}</td>
+                    <td>{moment(item.timestamp).format("DD/MM/YYYY HH:mm")}</td>
                     <td><button className="btn btn-success" onClick={() => this._openEdit(item.id)}><i className='fa fa-edit'></i></button><span> </span>
                     <button className="btn btn-danger" onClick={() => this._delete(item.id)}><i className='fa fa-times'></i> </button></td>
                   </tr>)}
@@ -215,11 +301,18 @@ _delete = (id) => {
               <div class="form-group">
                 <label for="email">Type :</label>
                 <select name="type" className="custom-select" onChange={this.handleInputChangeNew} 
-                value={newData.type} > 
+                value={newData.type}> 
                   <option value={0}>System</option>
-                  <option value={1}>Infomation</option>
+                  <option value={1}>User</option>
                 </select>
               </div>
+              {newData.type == 1 && <div class="form-group">
+                <label for="email">User :</label>
+                <select name="userId" className="custom-select" onChange={this.handleInputChangeNew} 
+                value={newData.userId} > 
+                  {!_.isEmpty(listUser) && listUser.map((item,index) => <option key={index} value={item.id}>{item.name}</option>)}
+                </select>
+              </div>}
                 <button class="btn btn-primary" onClick={this._submit}>Submit</button>
               </div>
               </div>
@@ -231,49 +324,32 @@ _delete = (id) => {
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h4 class="modal-title">Detail User</h4>
+                <h4 class="modal-title">Detail Notification</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
               </div>
               
               <div class="modal-body">
               <div class="form-group">
-                <label for="email">Email :</label>
-                <input type="text" class="form-control" name="email" value={email} onChange={this.handleInputChange}/>
+                <label for="email">Title :</label>
+                <input type="text" class="form-control" name="title" value={data.title} onChange={this.handleInputChangeNew}/>
               </div>
               <div class="form-group">
-                <label for="email">Description :</label>
-                <input type="text" class="form-control" name="description" value={description} onChange={this.handleInputChange}/>
+                <label for="email">Content :</label>
+                <input type="text" class="form-control" name="content" value={data.content} onChange={this.handleInputChangeNew}/>
               </div>
               <div class="form-group">
-                <label for="email">Address :</label>
-                <input type="text" class="form-control" name="address" value={address} onChange={this.handleInputChange}/>
+                <label for="email">Link :</label>
+                <input type="text" class="form-control" name="url" value={data.url} onChange={this.handleInputChangeNew}/>
               </div>
               <div class="form-group">
-                <label for="email">Phone :</label>
-                <input type="text" class="form-control" name="phone" value={phone} onChange={this.handleInputChange}/>
+                <label for="email">Type :</label>
+                <select name="type" className="form-control" onChange={this.handleInputChangeNew} 
+                value={data.type}> 
+                  <option value={0}>System</option>
+                  <option value={1}>User</option>
+                </select>
               </div>
-              <div class="form-group">
-                <label for="email">Name :</label>
-                <input type="text" class="form-control" name="name" value={name} onChange={this.handleInputChange}/>
-              </div>
-              <div class="form-group">
-              <label for="group1">Chọn ảnh đại diện cho sản phẩm</label><br></br>
-                  {!_.isEmpty(imageUrl) && <img className='img-product-primary' src={imageUrl} width={200} height={200}/> }
-                <br/>
-                <div className="input-group" id="group1">
-                      <div className="input-group-prepend">
-                      <span className="input-group-text" id="addon1"><i className="far fa-file-image"></i></span>
-                      </div>
-                      <div className="custom-file">
-                      <input type="file" className="custom-file-input" id="file1" accept="image/*" 
-                       aria-describedby="addon1" onChange={this.handleUploadImages}/>
-                      <label className="custom-file-label" for="file1">Chọn ảnh</label>
-                      </div>
-                  </div>
-                </div>
-          <button class="btn btn-success" onClick={this._active}>Active</button>
-          <button class="btn btn-danger" onClick={this._block}>Block</button>
-          <button class="btn btn-primary" onClick={this._update}>Submit</button>
+              <button class="btn btn-primary" onClick={this._update}>Submit</button>
               </div>
               </div>
             </div>
