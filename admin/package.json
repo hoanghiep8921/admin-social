@@ -7,7 +7,7 @@
     "draft-js": "^0.10.5",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
-    "node-sass": "^4.11.0",
+    "node-sass": "^4.13.1",
     "react": "^16.8.2",
     "react-stomp": "^4.1.0",
     "react-ckeditor-component": "^1.1.0",
