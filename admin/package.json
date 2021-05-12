@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "chart.js": "^2.8.0",
+    "chart.js": "^2.9.4",
     "draft-js": "^0.10.5",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
